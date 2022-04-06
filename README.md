@@ -43,21 +43,24 @@ This dataset seemed reasonably simple but with a decent chance of having some sm
 
 Using the *diamonds* dataset, I planned to construct four different models that would help me solidify the knowledge that I had been learning up to this point.
 The four models are as follows:
-  - First, `diamond_numerical_linreg.py`: A simple *numerical linear regression model* that predicts the *price label* based on the *numerical carat feature*.
-  - Second, `diamond_two_by_two_linreg.py`: A 4-model version of the first model consisting of the following:
+  - 1. `diamond_numerical_linreg.py`: A simple *numerical linear regression model* that predicts the *price label* based on the *numerical carat feature*.
+
+  - 2. `diamond_two_by_two_linreg.py`: A 4-model version of the first model consisting of the following:
     - The model `m1` that uses the `adam` optimizer and only the feature_layer and dense output layer.
     - The model `m2` that uses the `adam` optimizer and the feature_layer, a new densely connected *'relu'* layer with 128 nodes, and the dense output layer.
     - The model `m3` that uses the `RMSprop` optimizer and only the feature_layer and dense output layer.
     - The model `m4` that uses the `RMSprop` optimizer and the feature_layer, a new densely connected *'relu'* layer with 128 nodes, and the dense output layer.
     - This script also saves each of the models and history to a directory in Saved_Models/two_by_two_linear_regression
     - as well as `diamond_two_by_two_plot.py`, a script that loads each model and history and plots them all on a 2x2 subplot figure.
-  - Third, `diamond_categorical_linreg.py`: A *categorical linear regression model* that predicts the *price label* based on the following features:
+
+  - 3. `diamond_categorical_linreg.py`: A *categorical linear regression model* that predicts the *price label* based on the following features:
     - The *numerical carat feature* from the first model
     - The *categorical color feature* as a *categorical_column_with_vocabulary_list* using integers from [0, 10] as the supplied vocab
       - This feature column was then converted to an *embedding_column*
     - The *categorical clarity feature* as a *categorical_column_with_vocabulary_list* using integers from [0, 10] as the supplied vocab
       - This feature column was also converted to an *embedding_column*
-  - Fourth, `diamond_categorical_binary_classification.py`: A *categorical binary classification model* that predicts a binary classification representing whether the *price label* is over a given *price_threshold* based on the following features:
+
+  - 4. `diamond_categorical_binary_classification.py`: A *categorical binary classification model* that predicts a binary classification representing whether the *price label* is over a given *price_threshold* based on the following features:
     - The *numerical carat feature* from the first model
     - The *categorical color feature* as a *categorical_column_with_vocabulary_list* using integers from [0, 10] as the supplied vocab
       - This feature column was then converted to an *embedding_column*
