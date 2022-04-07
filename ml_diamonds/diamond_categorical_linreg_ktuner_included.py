@@ -4,19 +4,22 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 from tensorflow.keras import layers
 from tensorflow import feature_column
+from tensorflow import keras
+import keras_tuner as kt
 from matplotlib import pyplot as plt
-
 #-----------------------------------------------------------------------------------------------------------------------
 """
-diamond_categorical_linreg.py
+diamond_categorical_linreg_k_tuner.py
 
-    This script uses the tfds dataset 'diamonds' to build a linear regression TF model.
+    This module uses the tfds dataset 'diamonds' to build a linear regression TF model.
     - Features:
         - 'carat' as numeric
         - 'color' as categorical with vocab embedded
         - 'clarity' as categorical with vocab embedded
     - Label:
         - 'price' 
+        
+    Additionally, this module uses Keras Tuner to tune the model's hyperparameters.
 
 """
 #-----------------------------------------------------------------------------------------------------------------------
@@ -75,46 +78,99 @@ categorical_color_embedding = feature_column.embedding_column(categorical_column
 feature_columns.append(categorical_color_embedding)
 
 feature_layer = tf.keras.layers.DenseFeatures(feature_columns)
-#-----------------------------------------------------------------------------------------------------------------------
-""" Define hyperparameters for the model """
-epochs = 4
-learning_rate = 0.01
 
 #-----------------------------------------------------------------------------------------------------------------------
-""" Define the model structure """
-m1 = tf.keras.Sequential([
-    feature_layer,
-    layers.Dense(128, activation='relu'),
-    layers.Dense(units=1, input_shape=[1])
-])
+""" Define the model builder """
+def model_builder(hp):
+    """ builds the model """
+    # Define the model type and input layer
+    m1 = tf.keras.Sequential()
+    m1.add(feature_layer)
+
+    # Number of units in the first dense relu layer
+    hp_units = hp.Int('units', min_value=32, max_value=512, step=32)
+    m1.add(keras.layers.Dense(units=hp_units, activation='relu'))
+    # Define the output layer
+    m1.add(layers.Dense(units=1, input_shape=[1]))
+
+    # Define the learning rate values
+    hp_learning_rate = hp.Choice('learning_rate', values=[1e-1, 1e-2, 1e-3])
+
+    # Compile the model and return it
+    m1.compile(
+        optimizer=keras.optimizers.Adam(learning_rate=hp_learning_rate),
+        loss="mean_squared_error",
+        metrics=[tf.keras.metrics.RootMeanSquaredError()])
+    return m1
 
 #-----------------------------------------------------------------------------------------------------------------------
-""" Compile the model with proper optimizer and metrics """
-m1.compile(optimizer=tf.keras.optimizers.Adam(learning_rate),
-              loss="mean_squared_error",
-              metrics=[tf.keras.metrics.RootMeanSquaredError()])
+""" Instantiate the keras tuner """
+# Parameters for the tuner
+objective='val_loss'
+max_epochs = 10
+factor = 3
+directory= 'ktuner'
+project_name = 'diamond_categorical_linreg_k_tuner'
+# Instantiate the tuner
+tuner = kt.Hyperband(model_builder,
+                     objective=objective,
+                     max_epochs=max_epochs,
+                     factor=factor,
+                     directory=directory,
+                     project_name=project_name)
+# Create a callback for the early stopping
+patience = 5
+stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=patience)
 
 #-----------------------------------------------------------------------------------------------------------------------
-""" Train the model and get the history """
-history = m1.fit(train_ds, epochs=epochs, validation_data=val_ds)
+""" Run the hyperparameter search """
+search_epochs = 5
+tuner.search(train_ds, epochs=search_epochs, validation_data=val_ds, callbacks=[stop_early])
 
-epochs = history.epoch
-hist = pd.DataFrame(history.history)
+# Get the optimal hyperparameters
+best_hps = tuner.get_best_hyperparameters(num_trials=1)[0]
 
+print(f"""
+Optimal number of units in the first densely-connected
+layer is: {best_hps.get('units')}  
+""")
+
+print(f"""
+Optimal learning rate for the optimizer
+is: {best_hps.get('learning_rate')}.
+""")
+
+#-----------------------------------------------------------------------------------------------------------------------
+""" Train the model with the optimal hyperparameters and get the history """
+# Create the model with our optimal hyperparameters
+model = tuner.hypermodel.build(best_hps)
+# Train the model and get the history
+epochs_to_test = 3
+history = model.fit(train_ds, epochs=epochs_to_test, validation_data=val_ds)
+# Validation loss per epoch
+val_loss_per_epoch = history.history['val_loss']
+best_epoch = val_loss_per_epoch.index(min(val_loss_per_epoch)) + 1
+print('Best epoch: %d' % (best_epoch,))
+
+# Re-instantiate the hypermodel with the optimal hyperparameters
+hypermodel = tuner.hypermodel.build(best_hps)
+# Retrain the model with our optimal number of epochs
+hyperhistory = hypermodel.fit(train_ds, validation_data=val_ds, epochs=best_epoch)
+
+# Convert history to dataframe
+epochs = hyperhistory.epoch
+hist = pd.DataFrame(hyperhistory.history)
+
+# Get loss and validation loss
 loss = hist['loss']
 val_loss = hist['val_loss']
-
-rmse = hist['root_mean_squared_error']
-val_rmse = hist['val_root_mean_squared_error']
-print(epochs)
-print(loss)
 
 #-----------------------------------------------------------------------------------------------------------------------
 """ Save the model """
 saved_models_path = 'savedmodels'
-model_name = 'categorical_linreg'
+model_name = 'categorical_linreg_k_tuner'
 save_path = os.path.join(saved_models_path, model_name)
-m1.save(save_path)
+hypermodel.save(save_path)
 
 #-----------------------------------------------------------------------------------------------------------------------
 """ Plot Epochs versus Loss & Val. Loss """
@@ -127,13 +183,5 @@ plt.legend(['Training Loss', 'Validation Loss'])
 plt.show()
 
 #-----------------------------------------------------------------------------------------------------------------------
-""" Plot Epochs versus RMSE & Val. RMSE """
-plt.title('m1 RMSE and Validation RMSE')
-plt.xlabel('Epoch Number')
-plt.ylabel('RMSE')
-plt.plot(epochs[1:], rmse[1:], 'g-', label='Training Loss')
-plt.plot(epochs[1:], val_rmse[1:], 'c-', label='Validation Loss')
-plt.legend(['Training RMSE', 'Validation RMSE'])
-plt.show()
-#-----------------------------------------------------------------------------------------------------------------------
+
 

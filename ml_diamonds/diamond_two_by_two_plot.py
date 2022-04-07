@@ -3,6 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+
 #-----------------------------------------------------------------------------------------------------------------------
 """
 diamond_two_by_two_plot.py
@@ -12,22 +13,16 @@ diamond_two_by_two_plot.py
 """
 #-----------------------------------------------------------------------------------------------------------------------
 """ Get main directory and the /savedmodels directory """
-def getCurrDir():
-    return os.getcwd()
-def getParentDir(path):
-    return os.path.abspath(os.path.join(path, os.pardir))
-
-main_directory_path = getCurrDir()
-saved_models_extension = 'savedmodels'
-saved_models_path = os.path.join(main_directory_path, saved_models_extension)
-two_by_two_linreg_extension = 'two_by_two_linear_regression'
-two_by_two_linreg_path = os.path.join(saved_models_path, two_by_two_linreg_extension)
+saved_models_path = 'savedmodels'
+model_name = 'two_by_two_linear_regression'
+load_path = os.path.join(saved_models_path, model_name)
 history_extension = 'history'
 history_file_name = 'history.csv'
 history_file_path = os.path.join(history_extension, history_file_name)
 
+
 #-----------------------------------------------------------------------------------------------------------------------
-if exists(two_by_two_linreg_path):
+if exists(load_path):
     """ Load the models and histories """
     m1_name = 'model_1_adam'
     m2_name = 'model_2_adam_relu'
@@ -46,9 +41,9 @@ if exists(two_by_two_linreg_path):
     all_min_rmses = []
 
     for i in range(4):
-        m_path = os.path.join(two_by_two_linreg_path, all_model_names[i])
-        m_history_path = os.path.join(m_path, history_file_path)
-        m_hist = pd.read_csv(m_history_path)
+        m_path = os.path.join(load_path, all_model_names[i])
+        history_path = os.path.join(m_path, history_file_path)
+        m_hist = pd.read_csv(history_path)
         all_hists.append(m_hist)
         all_epochs.append(range(1, len(m_hist) + 1))
         all_losses.append(m_hist['loss'])

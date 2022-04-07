@@ -8,7 +8,6 @@ from tensorflow.keras import layers
 from tensorflow import feature_column
 from matplotlib import pyplot as plt
 
-from common import get_dir
 #-----------------------------------------------------------------------------------------------------------------------
 """
 diamond_two_by_two_linreg.py
@@ -93,41 +92,41 @@ def train_model(model, dataset, validation_set, epochs):
 """ Build the models """
 learning_rate = 0.5
 # Build model_1
-model_1_name = 'model_1_adam'
-model_1_optimizer = tf.keras.optimizers.Adam(learning_rate)
-model_1_use_relu = False
-model_1 = build_model(use_relu=model_1_use_relu, optimizer=model_1_optimizer)
+m1_name = 'model_1_adam'
+m1_optimizer = tf.keras.optimizers.Adam(learning_rate)
+m1_use_relu = False
+m1 = build_model(use_relu=m1_use_relu, optimizer=m1_optimizer)
 # Build model_2
-model_2_name = 'model_2_adam_relu'
-model_2_optimizer = tf.keras.optimizers.Adam(learning_rate)
-model_2_use_relu = True
-model_2 = build_model(use_relu=model_2_use_relu, optimizer=model_2_optimizer)
+m2_name = 'model_2_adam_relu'
+m2_optimizer = tf.keras.optimizers.Adam(learning_rate)
+m2_use_relu = True
+m2 = build_model(use_relu=m2_use_relu, optimizer=m2_optimizer)
 # Build model_3
-model_3_name = 'model_3_RMSprop'
-model_3_optimizer = tf.keras.optimizers.RMSprop(learning_rate=learning_rate)
-model_3_use_relu = False
-model_3 = build_model(use_relu=model_3_use_relu, optimizer=model_3_optimizer)
+m3_name = 'model_3_RMSprop'
+m3_optimizer = tf.keras.optimizers.RMSprop(learning_rate=learning_rate)
+m3_use_relu = False
+m3 = build_model(use_relu=m3_use_relu, optimizer=m3_optimizer)
 # Build model_4
-model_4_name = 'model_4_RMSprop_relu'
-model_4_optimizer = tf.keras.optimizers.RMSprop(learning_rate=learning_rate)
-model_4_use_relu = True
-model_4 = build_model(use_relu=model_4_use_relu, optimizer=model_4_optimizer)
+m4_name = 'model_4_RMSprop_relu'
+m4_optimizer = tf.keras.optimizers.RMSprop(learning_rate=learning_rate)
+m4_use_relu = True
+m4 = build_model(use_relu=m4_use_relu, optimizer=m4_optimizer)
 
 #-----------------------------------------------------------------------------------------------------------------------
 """ Train the models """
 epochs = 4
 # Train model_1
 print("Training model_1")
-m1_epochs, m1_hist, m1_loss, m1_val_loss, m1_rmse, m1_val_rmse = train_model(model_1, train_ds, val_ds, epochs)
+m1_epochs, m1_hist, m1_loss, m1_val_loss, m1_rmse, m1_val_rmse = train_model(m1, train_ds, val_ds, epochs)
 # Train model_2
-m2_epochs, m2_hist, m2_loss, m2_val_loss, m2_rmse, m2_val_rmse = train_model(model_2, train_ds, val_ds, epochs)
+m2_epochs, m2_hist, m2_loss, m2_val_loss, m2_rmse, m2_val_rmse = train_model(m2, train_ds, val_ds, epochs)
 # Train model_3
-m3_epochs, m3_hist, m3_loss, m3_val_loss, m3_rmse, m3_val_rmse = train_model(model_3, train_ds, val_ds, epochs)
+m3_epochs, m3_hist, m3_loss, m3_val_loss, m3_rmse, m3_val_rmse = train_model(m3, train_ds, val_ds, epochs)
 # Train model_4
-m4_epochs, m4_hist, m4_loss, m4_val_loss, m4_rmse, m4_val_rmse = train_model(model_4, train_ds, val_ds, epochs)
+m4_epochs, m4_hist, m4_loss, m4_val_loss, m4_rmse, m4_val_rmse = train_model(m4, train_ds, val_ds, epochs)
 
-all_models = [model_1, model_2, model_3, model_4]
-all_model_names = [model_1_name, model_2_name, model_3_name, model_4_name]
+all_models = [m1, m2, m3, m4]
+all_model_names = [m1_name, m2_name, m3_name, m4_name]
 all_epochs = [m1_epochs, m2_epochs, m3_epochs, m4_epochs]
 all_hists = [m1_hist, m2_hist, m3_hist, m4_hist]
 all_losses = [m1_loss, m2_loss, m3_loss, m4_loss]
@@ -141,25 +140,24 @@ all_min_rmses = []
 #-----------------------------------------------------------------------------------------------------------------------
 
 """ Save the models """
-# Get main directory and the saved_models directory
-main_directory_path = get_dir.getCurrDir()
-saved_models_extension = 'savedmodels'
-saved_models_path = os.path.join(main_directory_path, saved_models_extension)
-two_by_two_linreg_extension = 'two_by_two_linear_regression'
-two_by_two_linreg_path = os.path.join(saved_models_path, two_by_two_linreg_extension)
+saved_models_path = 'savedmodels'
+model_name = 'two_by_two_linear_regression'
+save_path = os.path.join(saved_models_path, model_name)
 history_extension = 'history'
 history_file_name = 'history.csv'
-history_file_path = os.path.join(history_extension, history_file_name)
+history_save_path = os.path.join(history_extension, history_file_name)
 
 for i in range(4):
     print('Saving {model_name}...'.format(model_name=all_model_names[i]))
-    model_path = os.path.join(two_by_two_linreg_path, all_model_names[i])
+    model_path = os.path.join(save_path, all_model_names[i])
     all_models[i].save(model_path)
-    model_history_path = os.path.join(model_path, history_file_path)
-    model_history_directory_path = os.path.join(model_path, history_extension)
-    if not exists(model_history_directory_path):
-        os.mkdir(model_history_directory_path)
-    all_hists[i].to_csv(model_history_path)
+    history_directory_path = os.path.join(model_path, history_extension)
+
+    if not exists(history_directory_path):
+        os.mkdir(history_directory_path)
+    history_path = os.path.join(model_path, history_save_path)
+    all_hists[i].to_csv(history_path)
+
     all_max_losses.append(max(all_losses[i][1:]))
     all_max_losses.append(max(all_val_losses[i][1:]))
     all_min_losses.append(min(all_losses[i][1:]))
