@@ -50,8 +50,8 @@ The four models are as follows:
     - The model `m2` that uses the `adam` optimizer and the feature_layer, a new densely connected *'relu'* layer with 128 nodes, and the dense output layer.
     - The model `m3` that uses the `RMSprop` optimizer and only the feature_layer and dense output layer.
     - The model `m4` that uses the `RMSprop` optimizer and the feature_layer, a new densely connected *'relu'* layer with 128 nodes, and the dense output layer.
-    - This script also saves each of the models and history to a directory in Saved_Models/two_by_two_linear_regression
-    - as well as `diamond_two_by_two_plot.py`, a script that loads each model and history and plots them all on a 2x2 subplot figure.
+    - This module also saves each of the models and history to a directory in Saved_Models/two_by_two_linear_regression
+    - as well as `diamond_two_by_two_plot.py`, a module that loads each model and history and plots them all on a 2x2 subplot figure.
 
   - 3. `diamond_categorical_linreg.py`: A *categorical linear regression model* that predicts the *price label* based on the following features:
     - The *numerical carat feature* from the first model
@@ -67,5 +67,7 @@ The four models are as follows:
     - The *categorical clarity feature* as a *categorical_column_with_vocabulary_list* using integers from [0, 10] as the supplied vocab
       - This feature column was also converted to an *embedding_column*
 
+##### Optimizing
 
+  I have also added a module that utilizes `Keras Tuner` to tune the hyperparameters of the *categorical linear regression* and the *categorical binary classification* models. This additional module has been written in such a way to allow an easy incorporation of existing models by simply calling methods of the new module that can build and tune the models.
 
