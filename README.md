@@ -7,7 +7,7 @@ Recently, I have taken an interest in learning about the machine learning librar
 
 ##### Motivation
 
-I began my quest of learning TensorFlow through Google's Machine Learning Crash Course and followed the guides on building simple linear regression and binary classification models. From there, I moved on to TensorFlow's documentation and began teaching myself through the guides that they have posted on their website. At some point, there were questions that I had that could not be simply answered by the basic examples that I had covered, and I wanted a chance to test myself on the knowledge that I had been learning. 
+I began my quest of learning TensorFlow through Google's Machine Learning Crash Course and followed thed binary classification models. From there, I moved on to TensorFlow's documentation and began teaching myself through the guides that they have posted on their website. At some point, there were questions that I had that could not be simply answered by the basic examples that I had covered, and I wanted a chance to test myself on the knowledge that I had been learning. 
 
 One of the main questions that I had been pondering was "how can I take what I have learned, and apply it to a completely new set of data," and more specifically, "if I am able to find an intriguing set of data, how do I know what types of data I can build a model with, and how would I go about framing each of those in a scientific way that my model can understand?" Because of these questions, I set out to learn TensorFlow on one of the tfds datasets that is provided on TensorFlow's website. My goal in this first project with TF was the following:
   - To take a completely new example of data from TensorFlow's provided datasets and create several models that accomplished the following tasks:
@@ -18,7 +18,7 @@ One of the main questions that I had been pondering was "how can I take what I h
     - Create a numerical binary classification model
     - Create a categorical binary classification model
     - Learn to write code to save the models and each model's history
-    - Write a script that could load a specific model and the history to plot the metrics on figures
+    - Write a module that could load a specific model and the history to plot the metrics on figures
 
 
 ##### The Data Set
